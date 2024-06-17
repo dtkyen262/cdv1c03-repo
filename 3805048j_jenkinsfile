@@ -13,17 +13,17 @@ pipeline {
             steps {
                 script {
                     // Step 1: Run the container in detached mode with port mapping and volume
-                    sh 'sudo docker run -d --name 3805048j-container -v /my/persistent/data:/data -p 32500:80 ubuntu:18.04 tail -f /dev/null /bin/bash'
+                    sh 'sudo docker run -d --name 3805048j-container -v /my/persistent/data:/data -p 32500:80 ubuntu:18.04 tail -f /dev/null '
                     
                     // Step 2: Install Apache2 in the running container
-                    sh 'sudo docker exec  3805048j-container apt-get update /bin/bash'
-                    sh 'sudo docker exec  3805048j-container apt-get install -y apache2 /bin/bash'
+                    sh 'sudo docker exec  3805048j-container apt-get update '
+                    sh 'sudo docker exec  3805048j-container apt-get install -y apache2 '
                     
                     // Step 3: Start the Apache2 service
-                    sh 'sudo docker exec  3805048j-container service apache2 start /bin/bash'
+                    sh 'sudo docker exec  3805048j-container service apache2 start'
                     
                     // Step 4:
-                    sh 'sudo docker commit 3805048j-container 3805048j-image /bin/bash'
+                    sh 'sudo docker commit 3805048j-container 3805048j-image '
                 }
                 echo '3805048J-Stage2: Server Setup Completed'
             }
