@@ -1,0 +1,75 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('3805048J-Stage1') {
+            steps {
+                echo '3805048J-Stage 1: Setup Release Environment Completed.'
+            }
+        }
+
+        
+        stage('3805048J-Stage2') {
+            steps {
+                script {
+                    // Step 1: Run the container in detached mode with port mapping and volume
+                    sh 'docker run -d --name 3805048j-container -v /my/persistent/data:/data -p 32500:80 ubuntu:18.04 tail -f /dev/null'
+                    
+                    // Step 2: Install Apache2 in the running container
+                    sh 'docker exec -it 3805048j-container apt-get update'
+                    sh 'docker exec -it 3805048j-container apt-get install -y apache2'
+                    
+                    // Step 3: Start the Apache2 service
+                    sh 'docker exec -it 3805048j-container service apache2 start'
+                    
+                    // Step 4:
+                    sh 'docker commit 3805048j-container 3805048j-image'
+                }
+                echo '3805048J-Stage2: Server Setup Completed'
+            }
+        }
+        
+
+        stage('3805048J-Stage3 Parallel') {
+            parallel {
+                stage('3805048J-Stage3A') {
+                    steps {
+                        echo '3805048J-Stage 3A: SQL Injection (SQLI) Test Completed'
+                    }
+                }
+                stage('3805048J-Stage3B') {
+                    steps {
+                        echo '3805048J-Stage 3B: X-Site Scripting (XSS) Test Completed'
+                    }
+                }
+            }
+        }
+
+        stage('3805048J-Stage4') {
+            steps {
+                script {
+                    def userInput = input(
+                        id: 'userInput', message: 'Hello 3805048J, permission to proceed to next phase?', parameters: [
+                            [$class: 'ChoiceParameterDefinition', choices: ['Proceed', 'Abort'], description: '', name: 'choice']
+                        ]
+                    )
+                    if (userInput == 'Proceed') {
+                        echo '3805048J-Stage4 : Approve to proceed to next phase'
+                        env.PROCEED = 'true'
+                    } else {
+                        error 'Pipeline aborted by user'
+                    }
+                }
+            }
+        }
+
+        stage('3805048J-Stage5') {
+            when {
+                expression { env.PROCEED == 'true' }
+            }
+            steps {
+                echo 'Stage5_3805048J : Ready for next phase'
+            }
+        }
+    }
+}
